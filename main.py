@@ -23,7 +23,7 @@ async def Recommendations(post_request_json : input_validation): # async will le
     predict = Recommendation(userid = input_data['userid'], 
                         latitude = input_data['latitude'], 
                         longitude = input_data['longitude'], 
-                        datetime = input_data['datetime']).prediction_results()['result'].head(5).to_dict(orient="records")
+                        datetime = input_data['datetime']).prediction_results()['result'].to_dict(orient="records")
 
     # predict = Recommendation(userid = 272745, 
     #                     latitude = 13.7562386, 
