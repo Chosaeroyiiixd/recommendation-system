@@ -1,5 +1,8 @@
 import mysql.connector
 import pandas as pd
+from pathlib import Path
+
+for_read_file_path = Path(__file__).parent
 
 def vehicleid_table_query_fn():
     connection = mysql.connector.connect(
@@ -35,7 +38,7 @@ def vehicleid_table_query_fn():
     rows = cursor.fetchall()
     column_names = [i[0] for i in cursor.description]
     vehicleid_data = pd.DataFrame(rows, columns=column_names)
-    vehicleid_data.to_csv(r'deploy_package\for_read_file\vehicleid_file.csv', index=False)
+    vehicleid_data.to_csv(for_read_file_path / 'vehicleid_file.csv', index=False)
     return print('vehicleid_file.csv updated!')
 
 vehicleid_table_query_fn()

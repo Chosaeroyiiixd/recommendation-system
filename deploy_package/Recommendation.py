@@ -8,6 +8,7 @@ from geopy.distance import geodesic
 import holidays
 import mysql.connector
 from mixpanel_utils import MixpanelUtils
+from pathlib import Path
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -18,14 +19,20 @@ class Recommendation:
         self.latitude = latitude
         self.longitude = longitude
         self.datetime = datetime
-        self.encode_file = joblib.load(r'deploy_package\pickle_file\label_encoders.pkl')
-        self.normalized_file = joblib.load(r'deploy_package\pickle_file\normalization.pkl')
-        self.model = joblib.load(r'deploy_package\pickle_file\model.pkl')
-        self.user_RV_file = pd.read_csv(r'deploy_package\for_read_file\user_RV.csv')
-        self.vehicleid_file = pd.read_csv(r'deploy_package\for_read_file\vehicleid_file.csv')
-        self.assemble_file = pd.read_csv(r'deploy_package\for_read_file\assemble_file.csv')
-        #self.prediction()
-        self.predict_file = pd.read_csv(r'deploy_package\for_read_file\predict_output.csv')
+
+        self.base_path = Path(__file__).parent
+        self.for_read_file_path = self.base_path / "deploy_package" / "for_reade_file"
+        self.pickle_file_path = self.base_path / "deploy_package" / "pickle_file"
+
+        self.encode_file = joblib.load(self.pickle_file_path / 'label_encoders.pkl')
+        self.normalized_file = joblib.load(self.pickle_file_path / 'normalization.pkl')
+        self.model = joblib.load(self.pickle_file_path / 'model.pkl')
+        self.user_RV_file = pd.read_csv(self.for_read_file_path / 'user_RV.csv')
+        self.vehicleid_file = pd.read_csv(self.for_read_file_path / 'vehicleid_file.csv')
+        self.assemble_file = pd.read_csv(self.for_read_file_path / 'assemble_file.csv')
+        self.predict_file = pd.read_csv(self.for_read_file_path / 'predict_output.csv')
+
+        
         
 
 # - Query table from MySQL
@@ -255,7 +262,7 @@ class Recommendation:
         possible_combination = possible_combination.drop(['userid'], axis = 1)
         possible_combination = possible_combination.drop_duplicates()
         possible_combination = possible_combination.sort_values(by=['reservation_count', 'view_count'], ascending=[False, False])
-        possible_combination.to_csv(r'deploy_package\for_read_file\assemble_file.csv', index=False)
+        possible_combination.to_csv(self.for_read_file_path / 'assemble_file.csv', index=False)
         return possible_combination
     
     
@@ -295,7 +302,7 @@ class Recommendation:
         prediction_score = self.model.predict(prepared_data)
         final_data['predicted_score'] = prediction_score
         final_data = final_data.sort_values(by='predicted_score', ascending=False)
-        final_data.to_csv(r'deploy_package\for_read_file\predict_output.csvv')
+        final_data.to_csv(self.for_read_file_path / 'predict_output.csv')
         return final_data
     
 
