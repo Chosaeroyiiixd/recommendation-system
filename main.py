@@ -11,10 +11,10 @@ from deploy_package.Recommendation import Recommendation
 app = FastAPI()
 
 class input_validation(BaseModel):
-    userid : conint(gt=0)
-    latitude : confloat(ge=-90, le=90)
-    longitude : confloat(ge=-180, le=180)
-    datetime : datetime
+    userid: conint(gt=0)
+    latitude: confloat(ge=5.5, le=20.5)  # Thailand's latitude range
+    longitude: confloat(ge=97.3, le=105.7)  # Thailand's longitude range
+    datetime: datetime
 
 
 @app.post('/') # JSON post request data will store at this decorator(@) then will pass through Recommendation argument.
