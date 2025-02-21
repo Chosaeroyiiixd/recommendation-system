@@ -116,8 +116,8 @@ pyparsing==3.2.1
 python-dateutil==2.9.0.post0
 python-json-logger==3.2.1
 pytz==2025.1
-pywin32==308
-pywinpty==2.0.15
+pywin32==308; sys_platform == "win32"
+pywinpty==2.0.15; sys_platform == "win32"
 PyYAML==6.0.2
 pyzmq==26.2.1
 referencing==0.36.2
