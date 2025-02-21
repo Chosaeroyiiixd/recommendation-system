@@ -98,7 +98,7 @@ def reservation_count_fn():
     
     resv_data = resv_data.drop(columns=['age', 'sex', 'usertype', 'nationality', 'stationid', 'reservestarttime', 'birthdate'], axis=1)
     #-------------------------------------------------------------------------- Merge with Demographic Data -------------------------------------------------------------------#
-    ungranular = pd.read_csv(r'C:\Users\HAUPCAR\Desktop\AI\Recommendation Model\API\recommendation-system\deploy_package\for_read_file\ungranular.csv')
+    ungranular = pd.read_csv(r'deploy_package\for_read_file\ungranular.csv')
 
     resv_data = pd.merge(resv_data, ungranular, on='userid', how='inner')
     resv_data['age'] = resv_data['age'].apply(lambda row : '0-17' if 0 <= row <= 17 else
@@ -113,7 +113,7 @@ def reservation_count_fn():
 
 
 def view_count_fn():    
-    mixpanel = pd.read_json(r'C:\Users\HAUPCAR\Desktop\AI\Recommendation Model\API\recommendation-system\deploy_package\for_read_file\event_export_view.json', lines = True)
+    mixpanel = pd.read_json(r'deploy_package\for_read_file\event_export_view.json', lines = True)
     df_mixpanel =  pd.DataFrame(columns=['event', 'properties'])
     json_mixpanel = []
     for i in range(0, mixpanel.shape[1]):
@@ -163,7 +163,7 @@ def view_count_fn():
     mixpanel_data = mixpanel_data[['userid', 'stationid', 'vehiclebrand', 'vehiclemodel', 'timeofday', 'dayofweek', 'holiday']]
 
     #-------------------------------------------------------------------------- Merge with Demographic Data -------------------------------------------------------------------#
-    ungranular = pd.read_csv(r'C:\Users\HAUPCAR\Desktop\AI\Recommendation Model\API\recommendation-system\deploy_package\for_read_file\ungranular.csv')
+    ungranular = pd.read_csv(r'deploy_package\for_read_file\ungranular.csv')
 
     mixpanel_data = pd.merge(mixpanel_data, ungranular, on='userid', how='inner')
 
@@ -191,7 +191,7 @@ def view_count_fn():
     mixpanel_data = mixpanel_data[['userid', 'age', 'sex', 'nationality', 'usertype', 'stationtype', 'vehiclebrand', 'vehiclemodel', 'timeofday', 'dayofweek', 'holiday']]
 
     #---------- Join with vehicle -> enginetype, vehiclesize based on brand, model -----------#
-    mixpanel_data = pd.merge(mixpanel_data, pd.read_csv(r'C:\Users\HAUPCAR\Desktop\AI\Recommendation Model\API\recommendation-system\deploy_package\for_read_file\vehicleid_file.csv'), 
+    mixpanel_data = pd.merge(mixpanel_data, pd.read_csv(r'deploy_package\for_read_file\vehicleid_file.csv'), 
                              on=['vehiclebrand', 'vehiclemodel'], how='inner')
 
     #---------- View Count ----------#
@@ -213,7 +213,7 @@ def user_RV():
                 'vehiclemodel', 'vehicletype', 'vehiclesize', 'enginetype', 'timeofday', 'dayofweek', 'holiday'], how = 'outer')
     user_RV['reservation_count'] = user_RV['reservation_count'].fillna(0)
     user_RV['view_count'] = user_RV['view_count'].fillna(0)
-    user_RV.to_csv(r'C:\Users\HAUPCAR\Desktop\AI\Recommendation Model\API\recommendation-system\deploy_package\for_read_file\user_RV.csv')
+    user_RV.to_csv(r'deploy_package\for_read_file\user_RV.csv')
     return print('user_RV.csv updated!')
 
 user_RV()
