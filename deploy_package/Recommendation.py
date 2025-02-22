@@ -20,9 +20,8 @@ class Recommendation:
         self.longitude = longitude
         self.datetime = datetime
 
-        self.base_path = Path(__file__).parent
-        self.for_read_file_path = self.base_path / "deploy_package" / "for_reade_file"
-        self.pickle_file_path = self.base_path / "deploy_package" / "pickle_file"
+        self.for_read_file_path = Path(__file__).parent / "for_read_file"
+        self.pickle_file_path = Path(__file__).parent / "pickle_file"
 
         self.encode_file = joblib.load(self.pickle_file_path / 'label_encoders.pkl')
         self.normalized_file = joblib.load(self.pickle_file_path / 'normalization.pkl')

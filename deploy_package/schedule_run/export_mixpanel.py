@@ -1,20 +1,48 @@
 from mixpanel_utils import MixpanelUtils
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
+import zipfile
+import json
+import tempfile
+from dotenv import load_dotenv
+import os
 
-for_read_file_path = Path(__file__).parent
+
+for_read_file_path = Path(__file__).parent.parent / 'for_read_file'
+
+load_dotenv()
+
+SERVICE_ACCOUNT_SECRET = os.getenv("SERVICE_ACCOUNT_SECRET")
+SERVICE_ACCOUNT_USERNAME = os.getenv("SERVICE_ACCOUNT_USERNAME")
+PROJECT_ID = os.getenv("PROJECT_ID")
+TOKEN = os.getenv("TOKEN")
+
 
 def export_mixpanel():
+    
+    today = (date.today()- timedelta(days=1)).strftime('%Y-%m-%d')
 
-    today = date.today().strftime('%Y-%m-%d')
     mputils = MixpanelUtils(
-    'AmayMOULtr9pNRKM5DUmXHX1BtlkxvTG',
-    service_account_username='Haup_service_account.ec38c1.mp-service-account',
-    project_id='2915624',
-    token='aa99b9539bd2e14a21ce983142c9593e')
-    mputils.export_events(for_read_file_path / 'event_export_view.json', 
-                          {'from_date': '2022-01-01', 'to_date': today, 'event': '["ShortTermDetail"]'})
+    SERVICE_ACCOUNT_SECRET,
+    service_account_username = SERVICE_ACCOUNT_USERNAME,
+    project_id = PROJECT_ID,
+    token = TOKEN)
 
-    return print('event_export_view.json updated!')
+    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+        temp_filename = temp_file.name 
+
+        mputils.export_events(
+            temp_filename, 
+            {'from_date': '2022-01-01', 'to_date': today, 'event': '["ShortTermDetail"]'}
+        )
+
+        with open(temp_filename, 'r') as f:
+            response_json = f.read()
+
+        with zipfile.ZipFile(for_read_file_path / "mixpanel_export_data.zip", 'w', zipfile.ZIP_DEFLATED) as zipf:
+            with zipf.open('event_export_view.json', 'w') as zf:
+                zf.write(response_json.encode('utf-8'))
+
+    return print('event_export_view.zip saved!')
 
 export_mixpanel()

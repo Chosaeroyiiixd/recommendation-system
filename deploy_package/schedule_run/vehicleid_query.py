@@ -2,7 +2,7 @@ import mysql.connector
 import pandas as pd
 from pathlib import Path
 
-for_read_file_path = Path(__file__).parent
+for_read_file_path = Path(__file__).parent.parent / 'for_read_file'
 
 def vehicleid_table_query_fn():
     connection = mysql.connector.connect(

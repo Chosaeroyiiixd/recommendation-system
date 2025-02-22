@@ -1,12 +1,15 @@
 import pandas as pd
 import mysql.connector
-import datetime
+from datetime import date
 import numpy as np
 import holidays
 from pathlib import Path
+import zipfile
+import json
 
 
-for_read_file_path = Path(__file__).parent
+for_read_file_path = Path(__file__).parent.parent / 'for_read_file'
+
 
 def reservation_count_fn():
     
@@ -69,7 +72,7 @@ def reservation_count_fn():
     column_names = [i[0] for i in cursor.description]
     resv_data = pd.DataFrame(rows, columns=column_names)
 
-    today = datetime.today()
+    today = date.today()
     resv_data['age'] = resv_data['birthdate'].apply(
     lambda row: today.year - row.year - ((today.month, today.day) < (row.month, row.day)))
 
@@ -116,15 +119,16 @@ def reservation_count_fn():
     return resv_data
 
 
-def view_count_fn():    
-    mixpanel = pd.read_json(for_read_file_path / 'event_export_view.json', lines = True)
-    df_mixpanel =  pd.DataFrame(columns=['event', 'properties'])
+def view_count_fn():
+    with zipfile.ZipFile(for_read_file_path / "mixpanel_export_data.zip", 'r') as zipf:
+        with zipf.open("event_export_view.json") as file:
+            mixpanel = json.load(file)
+
     json_mixpanel = []
-    for i in range(0, mixpanel.shape[1]):
-        json_mixpanel.append({
-            'properties' : mixpanel[i][0]['properties']
-        })
-    df_mixpanel = pd.DataFrame(json_mixpanel)
+    for i in range(len(mixpanel)):
+        json_mixpanel.append({'properties' : mixpanel[i]['properties']})
+
+    df_mixpanel = pd.DataFrame(json_mixpanel, columns=['properties'])
     df_mixpanel_normalized = pd.json_normalize(df_mixpanel['properties'])
 
     #---------- Drop Unnecessary Feature ----------#
@@ -195,7 +199,7 @@ def view_count_fn():
     mixpanel_data = mixpanel_data[['userid', 'age', 'sex', 'nationality', 'usertype', 'stationtype', 'vehiclebrand', 'vehiclemodel', 'timeofday', 'dayofweek', 'holiday']]
 
     #---------- Join with vehicle -> enginetype, vehiclesize based on brand, model -----------#
-    mixpanel_data = pd.merge(mixpanel_data, pd.read_csv(for_read_file_path / 'vehicleid_file.csv'), 
+    mixpanel_data = pd.merge(mixpanel_data, pd.read_csv(for_read_file_path / 'vehicle_info.csv'), 
                              on=['vehiclebrand', 'vehiclemodel'], how='inner')
 
     #---------- View Count ----------#
@@ -207,7 +211,6 @@ def view_count_fn():
     #---------- Reorder ----------#
     mixpanel_data = mixpanel_data[['userid', 'age', 'sex', 'nationality', 'usertype', 'stationtype', 'vehiclebrand', 'vehiclemodel', 'vehicletype', 
                                 'vehiclesize', 'enginetype', 'timeofday', 'dayofweek', 'holiday', 'view_count']]
-    
     return mixpanel_data
 
 def user_RV():
